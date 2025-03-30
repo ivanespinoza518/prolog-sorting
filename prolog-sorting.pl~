@@ -1,0 +1,127 @@
+% Produces random value X, within range [0,R).
+rv(R,X) :-
+    random(W),
+    X is floor(W * R).
+
+% Produces list L, with N random values within range [0,R).
+% Recursive case: N > 1
+rl(N,R,L) :-
+    N > 1,
+    N1 is N - 1,
+    rl(N1,R,L1),
+    rv(R,W),
+    L = [W|L1].
+
+% Base case: N is 1
+rl(1,R,L) :-
+    rv(R,W),
+    L = [W].
+
+
+%===============================================================
+% Selection Sort
+%===============================================================
+% Implements selection sort algorithm
+% Initial calling function, calls recursive function
+% Takes list of numbers L, calculates last index, and
+% calls recursive selection_sort with starting index 0
+% and last index LLM1.
+selection_sort(L,M) :-
+    length(L, LL),
+    LLM1 is LL - 1,
+    selection_sort(L,0,LLM1,M).
+
+
+% Recursive case: Start index not equal to End index
+selection_sort(L,S,E,M) :-
+    min_index(L,S,X),
+    swap(L,S,X,L1),
+    SP1 is S + 1,
+    selection_sort(L1,SP1,E,M).
+
+
+% Base case: Start index equal to End index
+selection_sort(L,E,E,L).
+
+
+% Initial calling function, calls recursive min_index
+% Takes list of values L, calculates length of list LL
+% and next index SP1, and calls recursive min_index with
+% that information to determine minimum index.
+min_index(L,S,MI) :-
+    length(L,LL),
+    SP1 is S + 1,
+    min_index(L,S,SP1,LL,MI).
+
+
+% Recursive case: Current index not equal to End index
+% and current minimum =< current element.
+min_index(L,CM,C,E,MI) :-
+    C < E,
+    nth0(CM,L,CMV),
+    nth0(C,L,CV),
+    CMV =< CV,
+    CP1 is C + 1,
+    min_index(L,CM,CP1,E,MI).
+
+
+% Recursive case: Current index not equal to End index
+% and current element < current minimum.
+min_index(L,CM,C,E,MI) :-
+    C < E,
+    nth0(CM,L,CMV),
+    nth0(C,L,CV),
+    CV < CMV,
+    CP1 is C + 1,
+    min_index(L,C,CP1,E,MI).
+
+
+% Base case: Current index == End index.
+min_index(_,CM,E,E,CM).
+
+
+% Takes list L, and swaps elements at indeces A and B.
+% Returns list M with swapped elements.
+swap(L,A,B,M) :-
+    nth0(A,L,AV),
+    nth0(B,L,BV),
+    nth0(A,L,_,T1),
+    nth0(A,T2,BV,T1),
+    nth0(B,T2,_,T3),
+    nth0(B,M,AV,T3).
+
+
+%===============================================================
+% Merge Sort
+%===============================================================
+% Implements merge sort algorithm
+merge_sort([X],[X]).
+
+merge_sort(L,M) :-
+    split(L,L1,L2),
+    merge_sort(L1,L1S),
+    merge_sort(L2,L2S),
+    merge(L1S,L2S,M).
+
+split(L,L1,L2) :-
+    append(L1,L2,L),
+    length(L,LL),
+    LLH is LL // 2,
+    length(L1,LLH).
+
+split([L],[L],[]).
+
+merge(L1,L2,M) :-
+    L1 = [L1H|L1T],
+    L2 = [L2H|_],
+    L1H < L2H,
+    merge(L1T,L2,T),
+    M = [L1H|T].
+
+merge(L1,L2,M) :-
+    L1 = [L1H|_],
+    L2 = [L2H|L2T],
+    L2H =< L1H,
+    merge(L1,L2T,T),
+    M = [L2H|T].
+
